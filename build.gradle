@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'me.vlod'
-version '2.5'
+version '2.5.1'
 
 repositories {
     mavenCentral()
