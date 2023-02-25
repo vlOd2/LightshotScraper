@@ -7,6 +7,7 @@ This scraper has been written in Java, an Launch4j exe is also provided
 - HTML output (it adds the links as an "a" element and also attaches the link to the images)
 - Image downloading (downloads the image to the same folder as the HTML output)
 - Customization commands (set the base folder, disable saving (creating the HTML output and downloading), disable downloading (disable only downloading images))
+- Discord Webhook support
 
 # ⚠️ Warning
 THE IMAGES YOU SCRAPE MAY CONTAIN PORNOGRAPHY OR OTHER INNAPROPRIATE IMAGERY<br>
