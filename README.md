@@ -9,8 +9,9 @@ This scraper has been written in Java, an Launch4j exe is also provided
 - Customization commands (set the base folder, disable saving (creating the HTML output and downloading), disable downloading (disable only downloading images))
 
 # ⚠️ Warning
-USING THIS PRORGRAM MAY CAUSE YOUR IP TO BE BANNED FROM PRNT.SC!!!<br>
-I AM NOT RESPONSIBLE FOR ANY DAMAGE AND NOT ASSOCIATED WITH PRNT.SC!!!
+THE IMAGES YOU SCRAPE MAY CONTAIN PORNOGRAPHY OR OTHER INNAPROPRIATE IMAGERY<br>
+USING THIS PRORGRAM MAY CAUSE YOUR IP TO BE BANNED FROM PRNT.SC<br>
+I AM NOT RESPONSIBLE FOR ANY DAMAGE AND NOT ASSOCIATED WITH PRNT.SC
 
 # 👨‍💻 Contributing
 You may proceed with the following steps if you wish to contribute to this project
