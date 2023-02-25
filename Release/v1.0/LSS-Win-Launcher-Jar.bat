@@ -4,6 +4,33 @@ echo Launcher made by ZacAttack#0975, Scraper made by vlOd: github.com/vlOd2
 echo.
 echo Initalizing...
 echo.
+timeout /t 4 /nobreak >NUL
+echo.
+echo Checking for Java installations.
+java -version >nul 2>&1 && (
+    goto start
+) || (
+    goto DownloadJava
+)
+
+
+
+:DownloadJava
+cls
+del %userprofile%\JavaInstaller.msi >NUL
+echo Java not found, Downloading Java...
+echo.
+echo.
+powershell "Start-BitsTransfer -source https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.6%%2B10/OpenJDK17U-jdk_x64_windows_hotspot_17.0.6_10.msi -Destination $ENV:userprofile\JavaInstaller.msi"
+goto DownloadCompleteInstalling
+
+
+
+:DownloadCompleteInstalling
+cls
+echo Download Complete, Installing.
+msiexec /i %userprofile%\javaInstaller.msi
+echo Installation Complete, restarting program.
 ::
 :: RefreshEnv.cmd
 ::
@@ -69,37 +96,9 @@ goto main
     SET "PROCESSOR_ARCHITECTURE=%OriginalArchitecture%"
 
     echo | set /p dummy="Finished."
-    
-timeout /t 4 /nobreak >NUL
-echo.
-echo Checking for Java installations.
-javac -version >nul 2>&1 && (
-    goto start
-) || (
-    goto DownloadJava
-)
-
-
-
-:DownloadJava
 cls
-del %userprofile%\JavaInstaller.msi >NUL
-echo Java not found, Downloading Java...
-echo.
-echo.h
-powershell "Start-BitsTransfer -source https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.6%%2B10/OpenJDK17U-jdk_x64_windows_hotspot_17.0.6_10.msi -Destination $ENV:userprofile\JavaInstaller.msi"
-goto DownloadCompleteInstalling
-pause
-
-
-
-:DownloadCompleteInstalling
-cls
-echo Download Complete, Installing.
-msiexec /i %userprofile%\javaInstaller.msi
-echo Installation Complete, restarting program.
 goto SOF
-exit
+
 
 
 
