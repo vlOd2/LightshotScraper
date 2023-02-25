@@ -1,5 +1,6 @@
 plugins {
     id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'edu.sc.seis.launch4j' version '2.4.6'
     id 'java'
 }
 
@@ -21,8 +22,20 @@ java {
 }
 
 jar {
-    dependsOn shadowJar
     manifest {
         attributes("Main-Class": "me.vlod.lightshotscraper.LightshotScraper")
     }
+}
+
+build {
+    dependsOn shadowJar
+    dependsOn createExe
+}
+
+launch4j {
+    headerType="gui"
+    mainClassName = "me.vlod.lightshotscraper.LightshotScraper"
+    outfile = "${archivesBaseName}-${project.version}.exe"
+    icon = "${projectDir}/src/main/resources/Icon.ico"
+    jar = "../libs/${archivesBaseName}-${project.version}-all.jar"
 }
