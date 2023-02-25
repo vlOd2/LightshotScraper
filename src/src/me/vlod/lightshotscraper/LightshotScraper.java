@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.GraphicsEnvironment;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
@@ -14,9 +13,8 @@ import javax.swing.JOptionPane;
 import org.jsoup.Connection.Response;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 
+import me.vlod.discord.webhook.DiscordWebhook;
 import me.vlod.lightshotscraper.console.Console;
 import me.vlod.lightshotscraper.logger.Logger;
 
@@ -25,10 +23,12 @@ public class LightshotScraper implements Runnable {
 	public static Logger logger;
 	public boolean running;
 	public Console console;
+	public CommandHandler commandHandler;
 	public String outputFolderBase;
 	public boolean noSaving;
 	public boolean noDownload;
 	public String linkIDFormat = "cciiii";
+	public DiscordWebhook discordWebhook;
 
 	static {
 		// Logger setup
@@ -98,12 +98,13 @@ public class LightshotScraper implements Runnable {
 		return links.toArray(new String[0]);
 	}
 	
-	public void downloadImage(String url, String outputFilePath) {
+	public boolean downloadImage(String url, String outputFilePath) {
 		try {
 			Response resultImageResponse = Jsoup.connect(url).ignoreContentType(true).execute();
 			FileOutputStream imageStream = new FileOutputStream(new File(outputFilePath));
 			imageStream.write(resultImageResponse.bodyAsBytes());
-			imageStream.close();	
+			imageStream.close();
+			return true;
 		} catch (Exception ex) {
 			if (ex instanceof HttpStatusException && 
 				((HttpStatusException)ex).getStatusCode() == 404) {
@@ -112,21 +113,12 @@ public class LightshotScraper implements Runnable {
 				logger.error(String.format("Unable to download the image from the link \"%s\"!", url));
 				ex.printStackTrace();
 			}
+			return false;
 		}
 	}
 	
 	public void handleInput(String input) {
-		input = input.trim();
-		if (input.length() < 1) {
-			if (this.console != null) {
-				JOptionPane.showMessageDialog(null, "Invalid input specified!", "LightshotScraper - Error", 
-						JOptionPane.ERROR_MESSAGE | JOptionPane.OK_OPTION);
-			} else {
-				logger.error("Invalid input specified!");
-			}
-			
-			return;
-		}
+		if (input.length() < 1) return;
 		
 		String[] inputSplitted = Utils.splitBySpace(input);
 		String cmd = inputSplitted[0];
@@ -150,185 +142,7 @@ public class LightshotScraper implements Runnable {
         Delegate handleInputDelegate = new Delegate() {
 			@Override
 			public void call(Object... args) {
-				switch (cmd) {
-        		case "generate":
-        			if (arguments.length < 1) {
-        				logger.error("Not enough arguments!");
-        				break;
-        			}
-        			
-        			String numberRaw = arguments[0];
-        			int number = 0;
-        			
-        			try {
-        				number = Integer.valueOf(numberRaw);
-        			} catch (Exception ex) {
-        				logger.error("Invalid arguments provided!");
-        				break;
-        			}
-        			
-        			long timeBeforeGen = System.currentTimeMillis();
-        			String outputFolderPath = "";
-        			
-        			if (!noSaving) {
-        				outputFolderPath = (outputFolderBase == null ? 
-        						"." : outputFolderBase.trim()) + "/" + timeBeforeGen;
-        				logger.info("Output folder: %s", outputFolderPath);
-        				
-        				// Create the output folder if it doesn't exist
-        				try {
-        					File outputFolder = new File(outputFolderPath);
-        					if (!outputFolder.exists()) {
-        						outputFolder.mkdir();
-        					}	
-        				} catch (Exception ex) {
-        					logger.error("Unable to create the output folder! Do we have not write permissions?");
-        					logger.error("Disabled file saving");
-        					noSaving = true;
-        					ex.printStackTrace();
-        				}
-        			}
-
-        			String[] links = generateLinks(number);
-        			PrintWriter fileDump = null;
-        			if (!noSaving) {
-        				try {
-        					fileDump = new PrintWriter(new FileOutputStream(
-        							new File(String.format("%s/links.html", outputFolderPath))));
-        					fileDump.println("<!Doctype HTML>");
-        					fileDump.println("<html>");
-        					fileDump.println("\t<body>");
-        					fileDump.println("\t\t<span>");
-        				} catch (Exception ex) {
-        					logger.error("Unable to create the HTML file! Do we have not write permissions?");
-        					ex.printStackTrace();
-        				}	
-        			}
-
-        			for (int i = 0; i < links.length; i++) {
-        				String link = links[i];
-        				String linkImageURL = "";
-        				
-        				// Print to console
-        				logger.info("(%d) %s", i, link);
-        				
-        				if (!noSaving) {
-        					// Get image URL
-        					try {
-        						Document document = Jsoup.connect(link).get();
-        						Element element = document.getElementById("screenshot-image");
-        						if (element == null) {
-        							logger.error("Unable to get the image URL for the link %s!", link);
-        						} else {
-        							linkImageURL = element.attr("src");
-        							// FIX: The schema is not present for some images
-        							if (!linkImageURL.startsWith("http") && 
-        								!linkImageURL.startsWith("https")) {
-        								linkImageURL = String.format("https:%s", linkImageURL);
-        							}
-        						}
-        					} catch (Exception ex) {
-        						logger.error("Something went wrong whilst getting the"
-        										+ " image URL for the link %s!", link);
-        						ex.printStackTrace();
-        					}
-        					
-        					// Write to file
-        					if (fileDump != null) {
-        						fileDump.println(String.format(
-        								"\t\t\t(%d) <a href=\"%s\" target=_blank>%s</a>:<br>", i, link, link));
-        						fileDump.println(String.format(
-        								"\t\t\t<img style=\"color: red;\" src=\"%s\" alt=\"Link %d doesn\'t exist!\"/><br>", 
-        								linkImageURL, i));
-        					}
-        					
-        					// Download image URL
-        					if (linkImageURL != "" && !noDownload) {
-        						downloadImage(linkImageURL, String.format("%s/%d.png", 
-        								outputFolderPath, i));
-        					}	
-        				}
-        			}
-        			
-        			if (fileDump != null) {
-        				fileDump.println("\t\t</span>");
-        				fileDump.println("\t</body>");
-        				fileDump.println("</html>");
-        				fileDump.flush();
-        				fileDump.close();
-        			}
-        			
-        			long timeAfterGen = System.currentTimeMillis();
-        			logger.info("Generated" + (noSaving || noDownload ? " " : " & downloaded ") + "%d links in %d seconds", 
-        					links.length, (timeAfterGen - timeBeforeGen) / 1000);
-        			
-        			break;
-        		case "togglenosaving":
-        			noSaving = !noSaving;
-        			logger.info("No saving is now %s", noSaving);
-        			break;
-        		case "togglenodownload":
-        			noDownload = !noDownload;
-        			logger.info("No download is now %s", noDownload);
-        			break;
-        		case "setoutputfolderbase":
-        			if (arguments.length < 1) {
-        				logger.error("Not enough arguments!");
-        				break;
-        			}
-        			
-        			outputFolderBase = arguments[0];
-        			logger.info("Set output folder base to %s", outputFolderBase);
-        			
-        			break;
-        		case "getlinkidformat":
-        			logger.info(linkIDFormat);
-        			break;
-        		case "setlinkidformat":
-        			if (arguments.length < 1) {
-        				logger.error("Not enough arguments!");
-        				break;
-        			}
-        			
-        			linkIDFormat = arguments[0];
-        			logger.info("Set link ID format to %s", linkIDFormat);
-        			
-        			break;
-        		case "exit":
-        			running = false;
-        			if (console != null) {
-        				System.exit(0);
-        			}
-        			break;
-        		case "help":
-        			logger.info("generate <number> - Generates x amount of links");
-        			logger.info("setoutputfolderbase <path> - Sets the output folder base");
-        			logger.info("togglenosaving - Toggles no saving");
-        			logger.info("togglenodownload - Toggles no downloading");
-        			logger.info("getlinkidformat - Prints the link ID format used for generation");
-        			logger.info("setlinkidformat <format> - Sets the link ID format used for generation");
-        			logger.info("clear - Clears the screen");
-        			logger.info("exit - Exits LightshotScraper");
-        			logger.info("");
-        			logger.info("Link ID format information:");
-        			logger.info("c - random a-z small character");
-        			logger.info("C - random a-z big character");
-        			logger.info("i - random 0-9 number");
-        			logger.info("r - picks randomly between c, C and i");
-        			break;
-        		case "clear":
-        			for (int i = 0; i < 1000; i++) {
-        				System.out.println("");
-        			}
-        			if (console != null) {
-        				console.clear();
-        			}
-        			printStartupMessage();
-        			break;
-        		default:
-        			logger.error("Invalid command! Type \"help\" for more information");
-        			break;
-        		}
+				commandHandler.doCommand(cmd, arguments);
 			}
         };
         
@@ -354,7 +168,8 @@ public class LightshotScraper implements Runnable {
 	@Override
 	public void run() {
 		this.running = true;
-		
+		this.commandHandler = new CommandHandler(this);
+	
 		Scanner inputScanner = null;
 		if (System.console() != null) {
 			inputScanner = new Scanner(System.in);
@@ -365,8 +180,15 @@ public class LightshotScraper implements Runnable {
 			this.console.onSubmit = new Delegate() {
 				@Override
 				public void call(Object... args) {
-					logger.info("> %s", args[0]);
-					handleInput((String)args[0]);
+					String input = (String)args[0];
+					if (input.length() < 1) {
+						JOptionPane.showMessageDialog(null, "Invalid input specified!", 
+								"LightshotScraper - Error", 
+								JOptionPane.ERROR_MESSAGE | JOptionPane.OK_OPTION);
+						return;
+					}
+					logger.info("> %s", input);
+					handleInput(input);
 				}
 			};
 			this.console.onClose = new Delegate() {
@@ -382,7 +204,11 @@ public class LightshotScraper implements Runnable {
 		while (this.running) {
 			if (inputScanner != null) {
 				System.out.print("> ");
-				String input = inputScanner.nextLine();
+				String input = inputScanner.nextLine().trim();
+				if (input.length() < 1) {
+					logger.error("Invalid input specified!");
+					continue;
+				}
 				this.handleInput(input);
 			}
 		}
