@@ -226,9 +226,9 @@ public class CommandHandler {
 		LightshotScraper.logger.info("Set link ID format to %s", format);
 	}
 	
-	private void doSetDiscordWebhookCommand(String webhook) {
-		this.app.discordWebhook = new DiscordWebhook(webhook);
-		LightshotScraper.logger.info("Set Discord webhook to %s", webhook);
+	private void doSetDiscordWebhookCommand(String webHook) {
+		this.app.discordWebhook = webHook.length() < 1 ? null : new DiscordWebhook(webHook);
+		LightshotScraper.logger.info("Set Discord webhook to %s", webHook);
 	}
 	
 	private void doExitCommand() {

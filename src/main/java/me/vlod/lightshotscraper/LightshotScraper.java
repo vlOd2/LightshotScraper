@@ -33,7 +33,7 @@ public class LightshotScraper implements Runnable {
 	static {
 		// Logger setup
 		logger = new Logger();
-		
+
 		// Console target
 		logger.targets.add(new Delegate() {
 			@Override
