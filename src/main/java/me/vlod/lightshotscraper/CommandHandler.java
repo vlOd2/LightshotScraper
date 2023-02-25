@@ -8,10 +8,10 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import me.vlod.discord.webhook.DiscordEmbed;
-import me.vlod.discord.webhook.DiscordEmbedAuthor;
-import me.vlod.discord.webhook.DiscordEmbedFooter;
-import me.vlod.discord.webhook.DiscordWebhook;
+import me.vlod.lightshotscraper.discord.webhook.DiscordEmbed;
+import me.vlod.lightshotscraper.discord.webhook.DiscordEmbedAuthor;
+import me.vlod.lightshotscraper.discord.webhook.DiscordEmbedFooter;
+import me.vlod.lightshotscraper.discord.webhook.DiscordWebhook;
 
 public class CommandHandler {
 	private LightshotScraper app;

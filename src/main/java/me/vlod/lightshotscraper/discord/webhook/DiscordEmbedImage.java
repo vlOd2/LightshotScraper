@@ -1,4 +1,4 @@
-package me.vlod.discord.webhook;
+package me.vlod.lightshotscraper.discord.webhook;
 
 public class DiscordEmbedImage {
 	public String url;

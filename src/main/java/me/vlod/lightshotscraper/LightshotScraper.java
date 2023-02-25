@@ -14,7 +14,7 @@ import org.jsoup.Connection.Response;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 
-import me.vlod.discord.webhook.DiscordWebhook;
+import me.vlod.lightshotscraper.discord.webhook.DiscordWebhook;
 import me.vlod.lightshotscraper.console.Console;
 import me.vlod.lightshotscraper.logger.Logger;
 
