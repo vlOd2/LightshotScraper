@@ -2,7 +2,7 @@
     <img src="LightShotScraper.png" width="256" height="256">
 </p>
 <p align="center">
-    <img src="https://img.shields.io/badge/Java%201.8-blue">
+    <img src="https://img.shields.io/badge/Java-1.8-blue">
     <img src="https://img.shields.io/badge/License-GPLv3-brightgreen">
 </p>
 
