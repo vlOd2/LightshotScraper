@@ -87,6 +87,12 @@ public class CommandHandler {
 		long timeBeforeGen = System.currentTimeMillis();
 		String outputFolderPath = "";
 		
+		if (this.app.noDownload) {
+			LightshotScraper.logger.warn("Image downloading has been disabled!");
+			LightshotScraper.logger.warn("The following features will not work:");
+			LightshotScraper.logger.warn("- Discord webhook");
+		}
+		
 		if (!this.app.noSaving) {
 			outputFolderPath = (this.app.outputFolderBase == null ? 
 					"." : this.app.outputFolderBase.trim()) + "/" + timeBeforeGen;

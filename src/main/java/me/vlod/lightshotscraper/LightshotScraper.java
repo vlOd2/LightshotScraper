@@ -219,6 +219,6 @@ public class LightshotScraper implements Runnable {
 	}
 	
 	public static void main(String[] args) {
-		new Thread(instance = new LightshotScraper()).start();
+		new Thread(instance = new LightshotScraper(), "Lightshot-Main-Thread").start();
 	}
 }
