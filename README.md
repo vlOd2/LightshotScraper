@@ -8,7 +8,7 @@
 
 # 💬 LightshotScraper
 The most advanced Lightshot (or prnt.sc) scraper ever!<br>
-This scraper has been written in Java, an Launch4j exe is also provided
+This scraper has been written in Java, a Launch4j exe is also provided
 
 # 📌 Features
 - AWT console (for easier use)
